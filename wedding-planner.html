@@ -1,0 +1,1235 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<title>💍 웨딩 플래너</title>
+<style>
+/* ===== DESIGN TOKENS ===== */
+:root {
+  --p:#6366f1; --p2:#4f46e5; --p-light:#eef2ff;
+  --acc:#ec4899; --acc2:#db2777; --acc-light:#fdf2f8;
+  --grad:linear-gradient(135deg,#4f46e5,#6366f1 45%,#ec4899);
+  --grad-soft:linear-gradient(135deg,#f5f3ff,#fdf2f8);
+  --bg:#f5f3ff; --card:#fff;
+  --t1:#1e1b4b; --t2:#64748b; --t3:#94a3b8;
+  --bd:#e2e8f0; --bd-v:#ddd6fe;
+  --ok:#10b981; --ok-bg:#ecfdf5;
+  --warn:#f59e0b; --warn-bg:#fffbeb;
+  --err:#ef4444; --err-bg:#fef2f2;
+  --sh-xs:0 1px 4px rgba(99,102,241,.07);
+  --sh-sm:0 2px 12px rgba(99,102,241,.10);
+  --sh-md:0 6px 28px rgba(99,102,241,.14);
+  --sh-lg:0 12px 48px rgba(99,102,241,.18);
+  --r-sm:12px; --r-md:18px; --r-lg:22px; --r-xl:28px; --r-pill:999px;
+}
+
+/* ===== RESET ===== */
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{
+  font-family:-apple-system,'Apple SD Gothic Neo','Noto Sans KR','Segoe UI',sans-serif;
+  background:var(--bg);color:var(--t1);
+  min-height:100vh;max-width:480px;margin:0 auto;
+  overflow-x:hidden;-webkit-font-smoothing:antialiased;
+}
+
+/* ===== SETUP PAGE ===== */
+#pg-setup{
+  min-height:100vh;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  padding:36px 22px 52px;
+  background:var(--grad);
+  position:relative;overflow:hidden;
+}
+#pg-setup::before{
+  content:'';position:absolute;
+  width:500px;height:500px;
+  background:rgba(255,255,255,.05);border-radius:50%;
+  top:-160px;right:-140px;pointer-events:none;
+}
+#pg-setup::after{
+  content:'';position:absolute;
+  width:320px;height:320px;
+  background:rgba(255,255,255,.04);border-radius:50%;
+  bottom:-100px;left:-80px;pointer-events:none;
+}
+.setup-ring{
+  font-size:68px;margin-bottom:16px;
+  animation:bob 2.8s ease-in-out infinite;
+  filter:drop-shadow(0 10px 28px rgba(0,0,0,.22));
+  position:relative;z-index:1;
+}
+@keyframes bob{
+  0%,100%{transform:translateY(0) rotate(-5deg) scale(1)}
+  50%{transform:translateY(-13px) rotate(5deg) scale(1.06)}
+}
+.setup-h1{
+  font-size:32px;font-weight:900;color:#fff;
+  letter-spacing:-.6px;margin-bottom:8px;
+  text-align:center;position:relative;z-index:1;
+}
+.setup-p{
+  font-size:13.5px;color:rgba(255,255,255,.8);
+  text-align:center;line-height:1.7;margin-bottom:32px;
+  position:relative;z-index:1;
+}
+.glass-card{
+  background:rgba(255,255,255,.16);
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border:1.5px solid rgba(255,255,255,.28);
+  border-radius:var(--r-xl);
+  padding:28px 22px;width:100%;
+  box-shadow:0 10px 40px rgba(0,0,0,.18);
+  position:relative;z-index:1;
+}
+.frow{display:flex;gap:12px;margin-bottom:16px}
+.ff{flex:1;display:flex;flex-direction:column;gap:7px}
+.ff label{font-size:10px;font-weight:800;color:rgba(255,255,255,.82);text-transform:uppercase;letter-spacing:.9px}
+.si{
+  background:rgba(255,255,255,.16);
+  border:1.5px solid rgba(255,255,255,.3);
+  border-radius:var(--r-sm);
+  padding:14px 15px;color:#fff;font-size:15px;
+  font-family:inherit;outline:none;width:100%;
+  transition:border-color .2s,background .2s;
+}
+.si::placeholder{color:rgba(255,255,255,.42)}
+.si:focus{border-color:rgba(255,255,255,.82);background:rgba(255,255,255,.22)}
+.si[type=date]{color-scheme:dark}
+.si[type=date]::-webkit-calendar-picker-indicator{filter:invert(1);opacity:.7}
+.btn-start{
+  width:100%;background:#fff;color:var(--p);
+  border:none;border-radius:var(--r-md);
+  padding:17px;font-size:16px;font-weight:900;
+  cursor:pointer;font-family:inherit;margin-top:8px;
+  box-shadow:0 6px 24px rgba(0,0,0,.18);
+  transition:transform .15s,box-shadow .15s;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  letter-spacing:-.2px;
+}
+.btn-start:active{transform:scale(.97);box-shadow:0 3px 10px rgba(0,0,0,.12)}
+.setup-note{font-size:11px;color:rgba(255,255,255,.42);margin-top:20px;text-align:center;position:relative;z-index:1}
+
+/* ===== APP PAGE ===== */
+#pg-app{display:none;flex-direction:column;padding-bottom:112px}
+
+/* ===== HEADER ===== */
+.hdr{
+  background:var(--grad);color:#fff;
+  padding:52px 20px 32px;
+  position:relative;overflow:hidden;
+}
+.hdr::before{
+  content:'';position:absolute;
+  width:300px;height:300px;
+  background:rgba(255,255,255,.06);border-radius:50%;
+  top:-80px;right:-70px;pointer-events:none;
+}
+.hdr::after{
+  content:'';position:absolute;
+  width:180px;height:180px;
+  background:rgba(255,255,255,.04);border-radius:50%;
+  bottom:-40px;left:-30px;pointer-events:none;
+}
+.hdr-top{
+  display:flex;justify-content:space-between;
+  align-items:center;margin-bottom:24px;position:relative;
+}
+.couple-pill{
+  font-size:14px;font-weight:800;
+  background:rgba(255,255,255,.18);
+  border:1px solid rgba(255,255,255,.26);
+  border-radius:var(--r-pill);
+  padding:8px 16px;
+  backdrop-filter:blur(8px);
+  display:flex;align-items:center;gap:6px;
+}
+.hdr-actions{display:flex;gap:8px}
+.hdr-btn{
+  background:rgba(255,255,255,.18);
+  border:1px solid rgba(255,255,255,.26);
+  color:#fff;border-radius:var(--r-pill);
+  width:40px;height:40px;font-size:16px;
+  cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  backdrop-filter:blur(8px);
+  transition:background .2s;position:relative;
+}
+.hdr-btn:active{background:rgba(255,255,255,.32)}
+.trash-badge{
+  position:absolute;top:-4px;right:-4px;
+  background:var(--err);color:#fff;
+  font-size:9px;font-weight:900;
+  min-width:17px;height:17px;
+  border-radius:var(--r-pill);
+  display:flex;align-items:center;justify-content:center;
+  padding:0 4px;border:2px solid rgba(79,70,229,.8);
+}
+
+/* D-DAY */
+.dday-wrap{text-align:center;position:relative}
+.dday-lbl{
+  font-size:10px;letter-spacing:3.5px;
+  text-transform:uppercase;color:rgba(255,255,255,.68);
+  margin-bottom:5px;font-weight:700;
+}
+.dday-num{
+  font-size:84px;font-weight:900;
+  line-height:.95;letter-spacing:-5px;
+  background:linear-gradient(180deg,#fff 10%,rgba(255,255,255,.72));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+.dday-date{font-size:13px;color:rgba(255,255,255,.72);margin-top:8px;font-weight:500}
+.cd-strip{display:flex;justify-content:center;gap:10px;margin-top:18px}
+.cd-box{
+  background:rgba(255,255,255,.14);
+  backdrop-filter:blur(10px);
+  border:1px solid rgba(255,255,255,.2);
+  border-radius:var(--r-md);
+  padding:10px 18px;min-width:64px;text-align:center;
+}
+.cd-n{font-size:28px;font-weight:900;display:block;line-height:1;font-variant-numeric:tabular-nums}
+.cd-l{font-size:9px;color:rgba(255,255,255,.62);margin-top:3px;letter-spacing:.5px;text-transform:uppercase;font-weight:600}
+
+/* ===== BODY WRAP ===== */
+.body-wrap{
+  background:var(--card);
+  border-radius:var(--r-xl) var(--r-xl) 0 0;
+  margin-top:-22px;
+  box-shadow:0 -6px 36px rgba(99,102,241,.09);
+}
+
+/* PROGRESS */
+.prog-section{padding:24px 18px 0}
+.prog-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.prog-lbl{font-size:14px;font-weight:800;color:var(--t1)}
+.prog-pct{font-size:14px;font-weight:900;color:var(--p)}
+.prog-track{
+  height:9px;background:#f1f5f9;
+  border-radius:var(--r-pill);overflow:hidden;margin-bottom:18px;
+}
+.prog-fill{
+  height:100%;background:var(--grad);
+  border-radius:var(--r-pill);
+  transition:width .85s cubic-bezier(.4,0,.2,1);
+}
+
+/* BENTO STATS */
+.stats-bento{
+  display:grid;grid-template-columns:repeat(4,1fr);
+  gap:9px;margin-bottom:16px;
+}
+.bento-box{
+  background:#fafbff;
+  border:1.5px solid var(--bd);
+  border-radius:var(--r-md);
+  padding:13px 8px;text-align:center;
+  transition:transform .15s,box-shadow .15s;
+}
+.bento-box:active{transform:scale(.95)}
+.bento-n{font-size:28px;font-weight:900;line-height:1;display:block}
+.bento-l{font-size:10px;color:var(--t3);margin-top:4px;font-weight:600}
+.bn-all .bento-n{color:var(--p)}
+.bn-done .bento-n{color:var(--ok)}
+.bn-left .bento-n{color:var(--acc)}
+.bn-over .bento-n{color:var(--err)}
+
+/* URGENCY */
+.ubanner{
+  margin:0 18px 16px;
+  border-radius:var(--r-md);
+  padding:13px 16px;
+  font-size:12.5px;font-weight:700;
+  display:none;line-height:1.55;
+}
+.ubanner.warn{
+  background:linear-gradient(90deg,#fffbeb,#fef3c7);
+  border-left:4px solid var(--warn);color:#78350f;
+}
+.ubanner.crit{
+  background:linear-gradient(90deg,#fef2f2,#fee2e2);
+  border-left:4px solid var(--err);color:#7f1d1d;
+}
+
+/* TABS */
+.tab-sticky{
+  position:sticky;top:0;z-index:40;
+  background:rgba(255,255,255,.94);
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--bd);
+}
+.tab-bar{
+  display:flex;gap:7px;
+  padding:10px 14px;
+  overflow-x:auto;scrollbar-width:none;
+}
+.tab-bar::-webkit-scrollbar{display:none}
+.tab{
+  white-space:nowrap;padding:8px 15px;
+  border-radius:var(--r-pill);
+  font-size:12px;font-weight:700;
+  background:transparent;color:var(--t2);
+  cursor:pointer;border:1.5px solid var(--bd);
+  flex-shrink:0;font-family:inherit;
+  transition:all .2s;
+}
+.tab:active{transform:scale(.94)}
+.tab.on{
+  background:var(--grad);color:#fff;
+  border-color:transparent;
+  box-shadow:0 3px 14px rgba(99,102,241,.32);
+}
+
+/* ===== TASK CARDS ===== */
+#task-list{padding:12px 14px 0}
+.task-card{
+  background:var(--card);
+  border-radius:var(--r-lg);
+  padding:15px 16px 15px 20px;
+  margin-bottom:10px;
+  display:flex;gap:13px;align-items:flex-start;
+  cursor:pointer;
+  border:1.5px solid var(--bd);
+  box-shadow:var(--sh-xs);
+  transition:transform .15s,box-shadow .15s,opacity .3s;
+  position:relative;overflow:hidden;
+}
+.task-card::before{
+  content:'';position:absolute;
+  left:0;top:0;bottom:0;width:5px;
+}
+.pri-h::before{background:var(--err)}
+.pri-m::before{background:var(--warn)}
+.pri-l::before{background:var(--ok)}
+.task-card:active{transform:scale(.985);box-shadow:var(--sh-sm)}
+.task-card.done{background:#f8fdf9;border-color:#bbf7d0;opacity:.62}
+.task-card.ov-card{border-color:#fca5a5}
+
+/* CHECKBOX */
+.chk{
+  width:28px;height:28px;min-width:28px;
+  border-radius:50%;border:2.5px solid #c4b5fd;
+  background:#fff;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .25s cubic-bezier(.4,0,.2,1);
+  flex-shrink:0;margin-top:1px;
+}
+.task-card.done .chk{
+  background:linear-gradient(135deg,var(--ok),#22c55e);
+  border-color:transparent;
+  box-shadow:0 3px 10px rgba(16,185,129,.38);
+}
+.chk-v{display:none;color:#fff;font-size:13px;font-weight:900}
+.task-card.done .chk-v{display:block}
+
+/* TASK BODY */
+.tb{flex:1;min-width:0}
+.t-ttl{font-size:14px;font-weight:700;color:var(--t1);line-height:1.45}
+.task-card.done .t-ttl{text-decoration:line-through;color:var(--t3)}
+.t-meta{display:flex;gap:5px;margin-top:7px;flex-wrap:wrap;align-items:center}
+.badge{font-size:10px;padding:3px 9px;border-radius:var(--r-pill);font-weight:700;flex-shrink:0}
+.t-due{font-size:10px;color:var(--t3);font-weight:600}
+.t-due.red{color:var(--err);font-weight:700}
+.t-due.amb{color:var(--warn);font-weight:700}
+.t-note{
+  font-size:11.5px;color:var(--t2);
+  margin-top:6px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.ai-hint{
+  display:inline-flex;align-items:center;gap:4px;
+  margin-top:7px;font-size:10px;color:var(--p);font-weight:700;
+  background:var(--p-light);padding:3px 10px;border-radius:var(--r-pill);
+}
+
+/* EMPTY */
+.empty-state{text-align:center;padding:60px 24px;color:var(--t2)}
+.empty-ico{font-size:58px;margin-bottom:18px;line-height:1}
+.empty-state p{font-size:14px;line-height:1.85}
+.empty-state strong{color:var(--p)}
+
+/* ===== FABS ===== */
+.fab-area{
+  position:fixed;bottom:26px;
+  left:50%;transform:translateX(-50%);
+  max-width:480px;width:100%;
+  display:flex;justify-content:space-between;
+  padding:0 20px;pointer-events:none;z-index:60;
+}
+.fab{
+  pointer-events:all;border:none;
+  border-radius:var(--r-pill);padding:15px 22px;
+  font-size:13.5px;font-weight:800;
+  cursor:pointer;font-family:inherit;
+  display:flex;align-items:center;gap:7px;
+  box-shadow:0 8px 32px rgba(0,0,0,.22);
+  transition:transform .15s,box-shadow .15s;
+  letter-spacing:-.2px;
+}
+.fab:active{transform:scale(.92);box-shadow:0 4px 14px rgba(0,0,0,.16)}
+.fab-add{background:var(--grad);color:#fff}
+.fab-ai{background:linear-gradient(135deg,#0ea5e9,#6366f1);color:#fff}
+
+/* ===== OVERLAYS & SHEETS ===== */
+.ov{
+  position:fixed;inset:0;
+  background:rgba(10,5,25,.58);
+  z-index:200;display:none;
+  align-items:flex-end;justify-content:center;
+  backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);
+}
+.ov.open{display:flex;animation:fadeIn .22s ease}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.sheet{
+  background:var(--card);
+  border-radius:28px 28px 0 0;
+  width:100%;max-width:480px;
+  padding:8px 20px 36px;
+  max-height:93vh;overflow-y:auto;
+  animation:slideUp .28s cubic-bezier(.32,0,.2,1);
+}
+.sheet::-webkit-scrollbar{display:none}
+@keyframes slideUp{
+  from{transform:translateY(80px);opacity:0}
+  to{transform:translateY(0);opacity:1}
+}
+.handle{
+  width:40px;height:4px;background:#e2e8f0;
+  border-radius:var(--r-pill);margin:8px auto 20px;
+}
+.sh-title{font-size:19px;font-weight:900;margin-bottom:20px;color:var(--t1);letter-spacing:-.3px}
+
+/* FORM */
+.fg{margin-bottom:16px}
+.fl{
+  font-size:11px;font-weight:800;color:var(--t2);
+  margin-bottom:7px;display:block;
+  text-transform:uppercase;letter-spacing:.5px;
+}
+.fi{
+  width:100%;border:1.5px solid var(--bd);
+  border-radius:var(--r-sm);
+  padding:13px 15px;font-size:14px;font-family:inherit;
+  outline:none;color:var(--t1);background:#fff;
+  transition:border-color .2s,box-shadow .2s;
+  -webkit-appearance:none;
+}
+.fi:focus{border-color:var(--p);box-shadow:0 0 0 3px rgba(99,102,241,.11)}
+.fi.ta{resize:vertical;min-height:86px;line-height:1.65}
+.fi.sel{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath fill='%236b7280' d='M5 6L0 0h10z'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 15px center;
+}
+.f2{display:flex;gap:12px}
+.f2 .fg{flex:1}
+.pri-row{display:flex;gap:8px}
+.pri-btn{
+  flex:1;padding:11px 0;
+  border:2px solid var(--bd);border-radius:var(--r-sm);
+  font-size:12px;font-weight:700;cursor:pointer;
+  background:#fff;color:var(--t2);font-family:inherit;
+  transition:all .15s;text-align:center;
+}
+.pri-btn.sh{border-color:var(--err);background:var(--err-bg);color:var(--err)}
+.pri-btn.sm{border-color:var(--warn);background:var(--warn-bg);color:var(--warn)}
+.pri-btn.sl{border-color:var(--ok);background:var(--ok-bg);color:var(--ok)}
+.brow{display:flex;gap:10px;margin-top:12px}
+.btn-cancel{
+  flex:1;background:#f8fafc;border:1.5px solid var(--bd);
+  color:var(--t2);border-radius:var(--r-md);
+  padding:14px;font-size:14px;font-weight:700;
+  cursor:pointer;font-family:inherit;transition:background .15s;
+}
+.btn-cancel:active{background:#f1f5f9}
+.btn-ok{
+  flex:2;background:var(--grad);color:#fff;
+  border:none;border-radius:var(--r-md);
+  padding:14px;font-size:14px;font-weight:900;
+  cursor:pointer;font-family:inherit;
+  box-shadow:0 5px 18px rgba(99,102,241,.38);
+  transition:transform .15s,box-shadow .15s;
+}
+.btn-ok:active{transform:scale(.97);box-shadow:0 2px 8px rgba(99,102,241,.22)}
+
+/* DETAIL */
+.det-hdr{
+  display:flex;gap:10px;
+  justify-content:space-between;align-items:flex-start;
+  margin-bottom:16px;
+}
+.det-ttl{font-size:20px;font-weight:900;flex:1;line-height:1.35;color:var(--t1);letter-spacing:-.3px}
+.det-actions{display:flex;gap:8px;flex-shrink:0}
+.ic-btn{
+  background:#f8fafc;border:1.5px solid var(--bd);
+  border-radius:var(--r-sm);
+  width:40px;height:40px;font-size:17px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:background .15s;
+}
+.ic-btn.del{background:var(--err-bg);border-color:#fca5a5}
+.ic-btn:active{background:#f1f5f9}
+.det-meta-row{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:22px}
+.dsec{margin-bottom:22px}
+.dsec-ttl{
+  font-size:10px;font-weight:800;color:var(--t3);
+  text-transform:uppercase;letter-spacing:1px;
+  margin-bottom:12px;display:flex;align-items:center;gap:8px;
+}
+.dsec-ttl::after{content:'';flex:1;height:1px;background:var(--bd)}
+.ai-card{
+  background:var(--grad-soft);border-radius:var(--r-lg);
+  padding:16px;border:1px solid var(--bd-v);
+}
+.ai-row{
+  display:flex;gap:12px;padding:8px 0;
+  border-bottom:1px solid rgba(139,92,246,.1);
+}
+.ai-row:last-child{border:none;padding-bottom:0}
+.ai-ico{font-size:17px;flex-shrink:0;margin-top:1px}
+.ai-text{font-size:12.5px;color:#374151;line-height:1.7}
+.tag-meta{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.ai-tag{
+  display:inline-flex;align-items:center;gap:4px;
+  font-size:10px;font-weight:700;padding:4px 11px;border-radius:var(--r-pill);
+}
+.tag-cost{background:#fef3c7;color:#92400e}
+.tag-time{background:#dbeafe;color:#1e40af}
+.tag-warn{background:#fee2e2;color:#991b1b}
+.cl-list{display:flex;flex-direction:column;gap:8px}
+.cl-row{
+  display:flex;gap:12px;align-items:flex-start;
+  background:#fafbff;border:1.5px solid var(--bd);
+  border-radius:var(--r-sm);padding:12px 14px;
+  cursor:pointer;transition:background .15s;
+}
+.cl-row.ckd{background:var(--ok-bg);border-color:#bbf7d0}
+.cl-row input[type=checkbox]{
+  width:17px;height:17px;accent-color:var(--p);
+  flex-shrink:0;margin-top:2px;cursor:pointer;
+}
+.cl-label{font-size:13px;color:var(--t1);flex:1;line-height:1.45;cursor:pointer}
+.cl-row.ckd .cl-label{text-decoration:line-through;color:var(--t3)}
+.note-edit{
+  width:100%;border:1.5px solid var(--bd);
+  border-radius:var(--r-sm);padding:13px 15px;
+  font-size:13px;font-family:inherit;outline:none;
+  resize:vertical;min-height:86px;
+  color:var(--t1);line-height:1.65;background:#fafbff;
+  transition:border-color .2s;
+}
+.note-edit:focus{border-color:var(--p)}
+.det-toggle-btn{
+  flex:2;border:none;border-radius:var(--r-md);
+  padding:16px;font-size:15px;font-weight:900;
+  cursor:pointer;font-family:inherit;
+  transition:transform .15s,box-shadow .15s;
+}
+.det-toggle-btn:active{transform:scale(.97)}
+
+/* SUGGEST */
+.sug-filter{
+  display:flex;gap:7px;overflow-x:auto;scrollbar-width:none;
+  padding-bottom:14px;margin-bottom:4px;
+}
+.sug-filter::-webkit-scrollbar{display:none}
+.sug-chip{
+  white-space:nowrap;padding:8px 15px;
+  border-radius:var(--r-pill);font-size:12px;font-weight:700;
+  background:var(--bg);color:var(--t2);cursor:pointer;
+  border:1.5px solid var(--bd);flex-shrink:0;font-family:inherit;
+  transition:all .18s;
+}
+.sug-chip.on{
+  background:var(--grad);color:#fff;
+  border-color:transparent;box-shadow:0 3px 12px rgba(99,102,241,.3);
+}
+.sug-body{
+  max-height:57vh;overflow-y:auto;
+  display:flex;flex-direction:column;gap:8px;
+}
+.sug-body::-webkit-scrollbar{display:none}
+.sug-item{
+  background:#fafbff;border:1.5px solid var(--bd);
+  border-radius:var(--r-lg);padding:13px 15px;
+  display:flex;align-items:center;gap:12px;
+  transition:opacity .2s;
+}
+.sug-item.added{opacity:.35;pointer-events:none}
+.sug-ico{
+  width:40px;height:40px;border-radius:var(--r-sm);
+  display:flex;align-items:center;justify-content:center;
+  font-size:20px;flex-shrink:0;
+}
+.sug-info{flex:1;min-width:0}
+.sug-t{font-size:13px;font-weight:700;color:var(--t1)}
+.sug-c{font-size:11px;color:var(--t2);margin-top:2px}
+.sug-btn{
+  background:var(--grad);color:#fff;border:none;
+  border-radius:var(--r-sm);padding:9px 16px;
+  font-size:12px;font-weight:800;cursor:pointer;
+  white-space:nowrap;flex-shrink:0;font-family:inherit;
+  box-shadow:0 3px 12px rgba(99,102,241,.32);
+  transition:transform .15s;
+}
+.sug-btn:active{transform:scale(.94)}
+.sug-btn:disabled{background:var(--bd);color:var(--t3);box-shadow:none;cursor:default}
+
+/* ===== TRASH ===== */
+.trash-top-bar{
+  display:flex;align-items:center;
+  justify-content:space-between;margin-bottom:18px;
+}
+.trash-info-lbl{font-size:13px;color:var(--t2);font-weight:600}
+.btn-empty{
+  background:var(--err-bg);color:var(--err);
+  border:1.5px solid #fca5a5;
+  border-radius:var(--r-pill);
+  padding:8px 16px;font-size:12px;font-weight:800;
+  cursor:pointer;font-family:inherit;
+  transition:background .15s;
+}
+.btn-empty:active{background:#fee2e2}
+.trash-list{display:flex;flex-direction:column;gap:9px}
+.trash-card{
+  background:#fafbff;border:1.5px solid var(--bd);
+  border-radius:var(--r-lg);padding:14px 15px;
+  display:flex;align-items:center;gap:12px;
+}
+.trash-info{flex:1;min-width:0}
+.trash-ttl{
+  font-size:13.5px;font-weight:700;
+  color:var(--t1);line-height:1.4;margin-bottom:7px;
+  text-decoration:line-through;color:var(--t3);
+}
+.trash-meta-row{display:flex;align-items:center;gap:7px}
+.trash-date{font-size:10px;color:var(--t3);font-weight:600}
+.trash-btns{display:flex;gap:8px;flex-shrink:0}
+.btn-restore{
+  background:var(--ok-bg);border:1.5px solid #bbf7d0;
+  color:var(--ok);border-radius:var(--r-sm);
+  width:38px;height:38px;font-size:17px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:background .15s;
+}
+.btn-restore:active{background:#d1fae5}
+.btn-perm-del{
+  background:var(--err-bg);border:1.5px solid #fca5a5;
+  color:var(--err);border-radius:var(--r-sm);
+  width:38px;height:38px;font-size:13px;font-weight:800;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:background .15s;
+}
+.btn-perm-del:active{background:#fee2e2}
+
+/* BADGE CATEGORY COLORS */
+.b-예식{background:#ede9fe;color:#5b21b6}
+.b-의상{background:#fce7f3;color:#9d174d}
+.b-초대장{background:#dbeafe;color:#1e40af}
+.b-가족{background:#d1fae5;color:#065f46}
+.b-신혼여행{background:#cffafe;color:#155e75}
+.b-촬영{background:#f3e8ff;color:#6b21a8}
+.b-피로연{background:#ffedd5;color:#9a3412}
+.b-행정{background:#f3f4f6;color:#374151}
+.b-기타{background:#f9fafb;color:#6b7280}
+.ico-예식{background:#ede9fe}
+.ico-의상{background:#fce7f3}
+.ico-초대장{background:#dbeafe}
+.ico-가족{background:#d1fae5}
+.ico-신혼여행{background:#cffafe}
+.ico-촬영{background:#f3e8ff}
+.ico-피로연{background:#ffedd5}
+.ico-행정{background:#f3f4f6}
+.ico-기타{background:#f9fafb}
+
+/* TOAST */
+.toast{
+  position:fixed;bottom:104px;
+  left:50%;transform:translateX(-50%) translateY(10px);
+  background:#1e1b4b;color:#fff;
+  padding:12px 24px;border-radius:var(--r-pill);
+  font-size:13.5px;font-weight:600;
+  white-space:nowrap;z-index:500;
+  opacity:0;pointer-events:none;
+  transition:opacity .3s,transform .3s;
+  max-width:88vw;text-align:center;
+  box-shadow:0 8px 28px rgba(0,0,0,.28);
+}
+.toast.up{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* CONFETTI */
+@keyframes cf{to{transform:translateY(110vh) rotate(720deg);opacity:0}}
+.cf{position:fixed;top:-16px;pointer-events:none;z-index:999;animation:cf ease-in forwards;border-radius:3px}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+
+<!-- ===================== SETUP ===================== -->
+<div id="pg-setup">
+  <div class="setup-ring">💍</div>
+  <h1 class="setup-h1">웨딩 플래너</h1>
+  <p class="setup-p">두 분의 특별한 날을 완벽하게 준비해드릴게요<br>결혼 준비의 모든 것을 AI와 함께 ✨</p>
+  <div class="glass-card">
+    <div class="frow">
+      <div class="ff"><label>신랑 이름</label><input class="si" id="s1" placeholder="신랑" maxlength="10"></div>
+      <div class="ff"><label>신부 이름</label><input class="si" id="s2" placeholder="신부" maxlength="10"></div>
+    </div>
+    <div class="ff" style="margin-bottom:20px">
+      <label>💒 결혼식 날짜</label>
+      <input class="si" type="date" id="sd">
+    </div>
+    <button class="btn-start" onclick="doSetup()">✨ <span>플래너 시작하기</span></button>
+  </div>
+  <p class="setup-note">입력한 정보는 이 기기에만 저장됩니다</p>
+</div>
+
+<!-- ===================== APP ===================== -->
+<div id="pg-app">
+
+  <!-- HEADER -->
+  <div class="hdr">
+    <div class="hdr-top">
+      <div class="couple-pill" id="cnm">💍 웨딩 플래너</div>
+      <div class="hdr-actions">
+        <button class="hdr-btn" onclick="openSug()" title="AI 추천">✨</button>
+        <button class="hdr-btn" onclick="openTrash()" title="휴지통">
+          🗑️<span class="trash-badge" id="trash-badge" style="display:none">0</span>
+        </button>
+        <button class="hdr-btn" onclick="doReset()" title="초기화">⚙️</button>
+      </div>
+    </div>
+    <div class="dday-wrap">
+      <div class="dday-lbl">D · D A Y</div>
+      <div class="dday-num" id="dnum">D-??</div>
+      <div class="dday-date" id="ddate">날짜를 설정해주세요</div>
+      <div class="cd-strip">
+        <div class="cd-box"><span class="cd-n" id="cdh">--</span><div class="cd-l">시간</div></div>
+        <div class="cd-box"><span class="cd-n" id="cdm">--</span><div class="cd-l">분</div></div>
+        <div class="cd-box"><span class="cd-n" id="cds">--</span><div class="cd-l">초</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BODY -->
+  <div class="body-wrap">
+    <!-- PROGRESS -->
+    <div class="prog-section">
+      <div class="prog-head">
+        <span class="prog-lbl">전체 준비 현황</span>
+        <span class="prog-pct" id="ppct">0%</span>
+      </div>
+      <div class="prog-track"><div class="prog-fill" id="pfill" style="width:0%"></div></div>
+      <div class="stats-bento">
+        <div class="bento-box bn-all"><span class="bento-n" id="stall">0</span><div class="bento-l">전체</div></div>
+        <div class="bento-box bn-done"><span class="bento-n" id="stdone">0</span><div class="bento-l">완료</div></div>
+        <div class="bento-box bn-left"><span class="bento-n" id="stleft">0</span><div class="bento-l">남은</div></div>
+        <div class="bento-box bn-over"><span class="bento-n" id="stover">0</span><div class="bento-l">기한초과</div></div>
+      </div>
+    </div>
+    <div class="ubanner" id="ubanner"></div>
+
+    <!-- TAB BAR -->
+    <div class="tab-sticky"><div class="tab-bar" id="tabs"></div></div>
+
+    <!-- TASK LIST -->
+    <div id="task-list"></div>
+  </div>
+</div>
+
+<!-- FABs -->
+<div class="fab-area hidden" id="fabs">
+  <button class="fab fab-ai" onclick="openSug()">✨ AI 추천</button>
+  <button class="fab fab-add" onclick="openAdd()">＋ 추가</button>
+</div>
+<div class="toast" id="toast"></div>
+
+<!-- ===================== ADD SHEET ===================== -->
+<div class="ov" id="ov-add" onclick="ovClose(event,'ov-add')">
+  <div class="sheet">
+    <div class="handle"></div>
+    <div class="sh-title">➕ 새 할 일 추가</div>
+    <div class="fg"><label class="fl">할 일 제목 *</label><input class="fi" id="a-ttl" placeholder="예) 웨딩홀 계약서 재확인"></div>
+    <div class="f2">
+      <div class="fg"><label class="fl">카테고리</label>
+        <select class="fi sel" id="a-cat">
+          <option value="예식">💒 예식</option><option value="의상">👗 의상</option>
+          <option value="초대장">💌 초대장</option><option value="가족">👨‍👩‍👧 가족</option>
+          <option value="신혼여행">✈️ 신혼여행</option><option value="촬영">🎥 촬영</option>
+          <option value="피로연">🍽️ 피로연</option><option value="행정">📋 행정</option>
+          <option value="기타">📌 기타</option>
+        </select>
+      </div>
+      <div class="fg"><label class="fl">마감일</label><input class="fi" type="date" id="a-due"></div>
+    </div>
+    <div class="fg"><label class="fl">우선순위</label>
+      <div class="pri-row">
+        <button class="pri-btn" id="pri-h" onclick="setPri('h')">🔴 높음</button>
+        <button class="pri-btn sm" id="pri-m" onclick="setPri('m')">🟡 보통</button>
+        <button class="pri-btn" id="pri-l" onclick="setPri('l')">🟢 낮음</button>
+      </div>
+    </div>
+    <div class="fg"><label class="fl">메모 / 세부 내용</label>
+      <textarea class="fi ta" id="a-note" placeholder="연락처, 링크, 주의사항 등 자유롭게 작성"></textarea>
+    </div>
+    <div class="brow">
+      <button class="btn-cancel" onclick="closeOv('ov-add')">취소</button>
+      <button class="btn-ok" onclick="doAdd()">추가하기 ✓</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== DETAIL SHEET ===================== -->
+<div class="ov" id="ov-det" onclick="ovClose(event,'ov-det')">
+  <div class="sheet" id="det-body"></div>
+</div>
+
+<!-- ===================== SUGGEST SHEET ===================== -->
+<div class="ov" id="ov-sug" onclick="ovClose(event,'ov-sug')">
+  <div class="sheet">
+    <div class="handle"></div>
+    <div class="sh-title">✨ AI 할 일 추천</div>
+    <p style="font-size:13px;color:var(--t2);margin-bottom:16px;line-height:1.7">결혼 준비에 꼭 필요한 항목을 AI가 추천해드려요.<br>탭해서 바로 내 리스트에 추가하세요!</p>
+    <div class="sug-filter" id="sug-filter"></div>
+    <div class="sug-body" id="sug-body"></div>
+  </div>
+</div>
+
+<!-- ===================== TRASH SHEET ===================== -->
+<div class="ov" id="ov-trash" onclick="ovClose(event,'ov-trash')">
+  <div class="sheet">
+    <div class="handle"></div>
+    <div class="sh-title">🗑️ 휴지통</div>
+    <div class="trash-top-bar">
+      <span class="trash-info-lbl" id="trash-count-lbl">0개 항목</span>
+      <button class="btn-empty" onclick="emptyTrash()">전체 영구삭제</button>
+    </div>
+    <div class="trash-list" id="trash-list"></div>
+  </div>
+</div>
+
+<script>
+const KEY='wpv6';
+const CATS=['전체','예식','의상','초대장','가족','신혼여행','촬영','피로연','행정','기타'];
+const CICO={전체:'🗂',예식:'💒',의상:'👗',초대장:'💌',가족:'👨‍👩‍👧',신혼여행:'✈️',촬영:'🎥',피로연:'🍽',행정:'📋',기타:'📌'};
+let ST={ok:false,n1:'',n2:'',dt:'',tasks:[],trash:[],filter:'전체'};
+let curPri='m';let tick=null;
+
+function save(){try{localStorage.setItem(KEY,JSON.stringify(ST))}catch(e){}}
+function load(){try{const d=localStorage.getItem(KEY);if(d){ST=JSON.parse(d);if(!ST.trash)ST.trash=[]}}catch(e){}}
+function $(i){return document.getElementById(i)}
+function esc(s){return s?String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'):''}
+function pad(n){return String(n).padStart(2,'0')}
+
+function doSetup(){
+  const n1=$('s1').value.trim(),n2=$('s2').value.trim(),dt=$('sd').value;
+  if(!n1||!n2||!dt){showToast('모든 정보를 입력해주세요!');return}
+  ST={ok:true,n1,n2,dt,tasks:defaultTasks(),trash:[],filter:'전체'};
+  save();boot();
+}
+function doReset(){
+  if(!confirm('처음부터 다시 시작할까요? 모든 데이터가 초기화돼요.'))return;
+  localStorage.removeItem(KEY);location.reload();
+}
+function boot(){
+  $('pg-setup').style.display='none';
+  $('pg-app').style.display='flex';
+  $('fabs').classList.remove('hidden');
+  $('cnm').textContent='💍 '+ST.n1+' ♥ '+ST.n2;
+  renderDday();renderTabs();renderTasks();renderProg();renderUrgency();updateTrashBadge();
+  if(tick)clearInterval(tick);
+  tick=setInterval(renderCD,1000);renderCD();
+}
+
+function renderDday(){
+  if(!ST.dt)return;
+  const t=new Date();t.setHours(0,0,0,0);
+  const w=new Date(ST.dt);w.setHours(0,0,0,0);
+  const d=Math.round((w-t)/864e5);
+  const el=$('dnum');
+  el.textContent=d>0?'D-'+d:d===0?'D-Day':'D+'+Math.abs(d);
+  el.style.fontSize=d>9999?'44px':d>999?'58px':'84px';
+  $('ddate').textContent=new Date(ST.dt).toLocaleDateString('ko-KR',{year:'numeric',month:'long',day:'numeric',weekday:'long'});
+}
+function renderCD(){
+  if(!ST.dt)return;
+  const now=new Date(),w=new Date(ST.dt);w.setHours(11,0,0,0);
+  const diff=w-now;
+  if(diff<=0){['cdh','cdm','cds'].forEach(id=>$(id).textContent='00');return}
+  $('cdh').textContent=pad(Math.floor(diff%864e5/36e5));
+  $('cdm').textContent=pad(Math.floor(diff%36e5/6e4));
+  $('cds').textContent=pad(Math.floor(diff%6e4/1e3));
+}
+function renderProg(){
+  const total=ST.tasks.length,done=ST.tasks.filter(t=>t.done).length;
+  const today=new Date();today.setHours(0,0,0,0);
+  const over=ST.tasks.filter(t=>!t.done&&t.due&&new Date(t.due)<today).length;
+  const pct=total?Math.round(done/total*100):0;
+  $('pfill').style.width=pct+'%';$('ppct').textContent=pct+'%';
+  $('stall').textContent=total;$('stdone').textContent=done;
+  $('stleft').textContent=total-done;$('stover').textContent=over;
+}
+function renderUrgency(){
+  if(!ST.dt)return;
+  const t=new Date();t.setHours(0,0,0,0);
+  const w=new Date(ST.dt);w.setHours(0,0,0,0);
+  const d=Math.round((w-t)/864e5);
+  const b=$('ubanner');
+  if(d>0&&d<=7){
+    b.style.display='block';b.className='ubanner crit';
+    b.textContent='🚨 D-'+d+'! 최종 점검이 필요한 항목을 확인하세요.';
+  }else if(d>7&&d<=30){
+    b.style.display='block';b.className='ubanner warn';
+    b.textContent='⚠️ 결혼식까지 '+d+'일! 마감 임박 항목을 먼저 확인하세요.';
+  }else{b.style.display='none'}
+}
+function renderTabs(){
+  $('tabs').innerHTML=CATS.map(c=>'<button class="tab '+(c===ST.filter?'on':'')+'" onclick="setF(\''+c+'\')">'+(CICO[c]||'')+' '+c+'</button>').join('');
+}
+function setF(c){ST.filter=c;renderTabs();renderTasks()}
+function renderTasks(){
+  const today=new Date();today.setHours(0,0,0,0);
+  let tasks=ST.filter==='전체'?[...ST.tasks]:ST.tasks.filter(t=>t.cat===ST.filter);
+  tasks.sort((a,b)=>{
+    if(a.done!==b.done)return a.done?1:-1;
+    const po={h:0,m:1,l:2};
+    if(po[a.pri||'m']!==po[b.pri||'m'])return po[a.pri||'m']-po[b.pri||'m'];
+    if(a.due&&b.due)return new Date(a.due)-new Date(b.due);
+    if(a.due)return -1;if(b.due)return 1;
+    return b.id-a.id;
+  });
+  if(!tasks.length){
+    $('task-list').innerHTML='<div class="empty-state"><div class="empty-ico">'+(ST.filter==='전체'?'✨':'🔍')+'</div><p>'+(ST.filter==='전체'?'아직 할 일이 없어요!<br><strong>＋ 추가</strong> 또는 <strong>✨ AI 추천</strong>으로<br>시작해보세요.':'이 카테고리에 할 일이 없어요.<br><strong>✨ AI 추천</strong>에서 추가해보세요.')+'</p></div>';
+    return;
+  }
+  $('task-list').innerHTML=tasks.map(t=>{
+    const due=t.due?new Date(t.due):null;
+    const today2=new Date();today2.setHours(0,0,0,0);
+    const diff=due?Math.round((due-today2)/864e5):null;
+    const late=due&&diff<0&&!t.done;
+    const soon=due&&diff>=0&&diff<=3&&!t.done;
+    const ds=due?due.toLocaleDateString('ko-KR',{month:'short',day:'numeric'}):'';
+    const dl=late?'📅 '+ds+' ⚠️ 기한초과':soon?'📅 '+ds+' 🔥':ds?'📅 '+ds:'';
+    return '<div class="task-card pri-'+(t.pri||'m')+(t.done?' done':'')+(late?' ov-card':'')+'" onclick="openDet('+t.id+')">'
+      +'<div class="chk" onclick="event.stopPropagation();toggle('+t.id+')"><span class="chk-v">✓</span></div>'
+      +'<div class="tb">'
+      +'<div class="t-ttl">'+esc(t.ttl)+'</div>'
+      +'<div class="t-meta"><span class="badge b-'+t.cat+'">'+(CICO[t.cat]||'')+' '+t.cat+'</span>'
+      +(t.pri==='h'?'<span class="badge" style="background:#fee2e2;color:#991b1b">높음</span>':'')
+      +(dl?'<span class="t-due '+(late?'red':soon?'amb':'')+'">'+dl+'</span>':'')
+      +'</div>'
+      +(t.note?'<div class="t-note">📝 '+esc(t.note)+'</div>':'')
+      +(DB[t.cat]?'<span class="ai-hint">✨ AI 팁</span>':'')
+      +'</div></div>';
+  }).join('');
+}
+function toggle(id){
+  const t=ST.tasks.find(t=>t.id===id);if(!t)return;
+  t.done=!t.done;save();
+  if(t.done)confetti();
+  renderTasks();renderProg();
+}
+function setPri(p){
+  curPri=p;
+  $('pri-h').className='pri-btn'+(p==='h'?' sh':'');
+  $('pri-m').className='pri-btn'+(p==='m'?' sm':'');
+  $('pri-l').className='pri-btn'+(p==='l'?' sl':'');
+}
+function openAdd(){setPri('m');openOv('ov-add')}
+function doAdd(){
+  const ttl=$('a-ttl').value.trim();
+  if(!ttl){showToast('할 일 제목을 입력해주세요');return}
+  ST.tasks.push({id:Date.now(),ttl,cat:$('a-cat').value,due:$('a-due').value,note:$('a-note').value.trim(),pri:curPri,done:false,checks:{}});
+  save();closeOv('ov-add');renderTasks();renderProg();
+  $('a-ttl').value='';$('a-note').value='';$('a-due').value='';
+  showToast('✅ 추가됐어요!');
+}
+function openDet(id){
+  const t=ST.tasks.find(t=>t.id===id);if(!t)return;
+  const tips=DB[t.cat];
+  const cl=(tips&&tips.cl)||[];
+  const due=t.due?new Date(t.due).toLocaleDateString('ko-KR',{year:'numeric',month:'long',day:'numeric'}):'없음';
+  const priMap={h:'🔴 높음',m:'🟡 보통',l:'🟢 낮음'};
+  const isDone=t.done;
+  $('det-body').innerHTML='<div class="handle"></div>'
+    +'<div class="det-hdr"><div class="det-ttl">'+esc(t.ttl)+'</div>'
+    +'<div class="det-actions">'
+    +'<button class="ic-btn del" onclick="delTask('+t.id+')">🗑️</button>'
+    +'<button class="ic-btn" onclick="closeOv(\'ov-det\')">✕</button>'
+    +'</div></div>'
+    +'<div class="det-meta-row">'
+    +'<span class="badge b-'+t.cat+'">'+CICO[t.cat]+' '+t.cat+'</span>'
+    +'<span class="badge" style="background:#f1f5f9;color:#475569">📅 '+due+'</span>'
+    +'<span class="badge" style="background:#f1f5f9;color:#475569">'+priMap[t.pri||'m']+'</span>'
+    +'<span class="badge" style="background:'+(isDone?'#d1fae5':'#fef3c7')+';color:'+(isDone?'#065f46':'#92400e')+'">'+(isDone?'✅ 완료':'⏳ 진행중')+'</span>'
+    +'</div>'
+    +'<div class="dsec"><div class="dsec-ttl">📝 메모</div>'
+    +'<textarea class="note-edit" id="det-note" oninput="saveNote('+t.id+')">'+esc(t.note||'')+'</textarea></div>'
+    +(tips?'<div class="dsec"><div class="dsec-ttl">✨ AI 리서치 팁</div>'
+      +'<div class="tag-meta">'
+      +(tips.cost?'<span class="ai-tag tag-cost">💰 '+tips.cost+'</span>':'')
+      +(tips.timeline?'<span class="ai-tag tag-time">⏰ '+tips.timeline+'</span>':'')
+      +(tips.warn?'<span class="ai-tag tag-warn">⚠️ '+tips.warn+'</span>':'')
+      +'</div>'
+      +'<div class="ai-card">'+tips.tips.map(tp=>'<div class="ai-row"><span class="ai-ico">'+tp.i+'</span><span class="ai-text">'+tp.t+'</span></div>').join('')+'</div></div>':'')
+    +(cl.length?'<div class="dsec"><div class="dsec-ttl">✅ 세부 체크리스트</div><div class="cl-list">'
+      +cl.map((c,i)=>{const ck=t.checks&&t.checks[i];return '<div class="cl-row'+(ck?' ckd':'')+'" id="cr-'+t.id+'-'+i+'" onclick="toggleCL('+t.id+','+i+')">'
+        +'<input type="checkbox"'+(ck?' checked':'')+' onclick="event.stopPropagation();toggleCL('+t.id+','+i+')">'
+        +'<span class="cl-label">'+c+'</span></div>';}).join('')
+      +'</div></div>':'')
+    +'<div style="margin-top:10px">'
+    +'<button class="det-toggle-btn" onclick="toggle('+t.id+');closeOv(\'ov-det\')" style="width:100%;background:'+(isDone?'#fff':'var(--grad)')+';color:'+(isDone?'var(--p)':'#fff')+';border:'+(isDone?'2px solid var(--bd-v)':'none')+';box-shadow:'+(isDone?'none':'0 5px 18px rgba(99,102,241,.35)')+'">'+(isDone?'↩️ 완료 취소':'✅ 완료로 표시')+'</button>'
+    +'</div>';
+  openOv('ov-det');
+}
+function saveNote(id){const t=ST.tasks.find(t=>t.id===id);if(!t)return;t.note=$('det-note').value;save()}
+function toggleCL(id,i){
+  const t=ST.tasks.find(t=>t.id===id);if(!t)return;
+  if(!t.checks)t.checks={};t.checks[i]=!t.checks[i];save();
+  const row=$('cr-'+id+'-'+i);
+  if(row){row.classList.toggle('ckd',t.checks[i]);row.querySelector('input').checked=!!t.checks[i];}
+}
+
+/* ===== TRASH FEATURE ===== */
+function delTask(id){
+  const t=ST.tasks.find(t=>t.id===id);if(!t)return;
+  t.deletedAt=Date.now();
+  ST.trash=ST.trash||[];
+  ST.trash.unshift(t);
+  ST.tasks=ST.tasks.filter(t=>t.id!==id);
+  save();closeOv('ov-det');
+  renderTasks();renderProg();updateTrashBadge();
+  showToast('🗑️ 휴지통으로 이동됐어요');
+}
+function restoreTask(id){
+  const t=(ST.trash||[]).find(t=>t.id===id);if(!t)return;
+  delete t.deletedAt;
+  ST.tasks.push(t);
+  ST.trash=ST.trash.filter(t=>t.id!==id);
+  save();renderTasks();renderProg();renderTrashSheet();updateTrashBadge();
+  showToast('✅ 복원됐어요!');
+}
+function permDelete(id){
+  if(!confirm('영구 삭제할까요? 복원할 수 없어요.'))return;
+  ST.trash=(ST.trash||[]).filter(t=>t.id!==id);
+  save();renderTrashSheet();updateTrashBadge();
+  showToast('삭제됐어요');
+}
+function emptyTrash(){
+  if(!(ST.trash||[]).length){showToast('휴지통이 비어있어요');return}
+  if(!confirm('휴지통을 완전히 비울까요? 복원할 수 없어요.'))return;
+  ST.trash=[];
+  save();renderTrashSheet();updateTrashBadge();
+  showToast('🗑️ 휴지통을 비웠어요');
+}
+function updateTrashBadge(){
+  const badge=$('trash-badge');
+  const n=(ST.trash||[]).length;
+  badge.textContent=n;
+  badge.style.display=n>0?'flex':'none';
+}
+function openTrash(){renderTrashSheet();openOv('ov-trash')}
+function renderTrashSheet(){
+  const trash=ST.trash||[];
+  $('trash-count-lbl').textContent=trash.length+'개 항목';
+  if(!trash.length){
+    $('trash-list').innerHTML='<div class="empty-state"><div class="empty-ico">🗑️</div><p>휴지통이 비어있어요</p></div>';
+    return;
+  }
+  $('trash-list').innerHTML=trash.map(t=>'<div class="trash-card">'
+    +'<div class="trash-info">'
+    +'<div class="trash-ttl">'+esc(t.ttl)+'</div>'
+    +'<div class="trash-meta-row">'
+    +'<span class="badge b-'+t.cat+'">'+CICO[t.cat]+' '+t.cat+'</span>'
+    +'<span class="trash-date">'+new Date(t.deletedAt).toLocaleDateString('ko-KR',{month:'short',day:'numeric'})+'삭제</span>'
+    +'</div></div>'
+    +'<div class="trash-btns">'
+    +'<button class="btn-restore" onclick="restoreTask('+t.id+')" title="복원">↩️</button>'
+    +'<button class="btn-perm-del" onclick="permDelete('+t.id+')" title="영구삭제">✕</button>'
+    +'</div></div>'
+  ).join('');
+}
+
+/* ===== SUGGEST ===== */
+let sugF='';
+function openSug(){renderSug();openOv('ov-sug')}
+function renderSug(){
+  const cats=['전체','예식','의상','초대장','가족','신혼여행','촬영','피로연','행정'];
+  $('sug-filter').innerHTML=cats.map(c=>'<button class="sug-chip '+(sugF===(c==='전체'?'':c)?'on':'')+'" onclick="setSugF(\''+(c==='전체'?'':c)+'\')">'+(CICO[c]||'')+' '+c+'</button>').join('');
+  const ex=new Set(ST.tasks.map(t=>t.ttl));
+  const items=SUGS.filter(s=>!sugF||s.c===sugF);
+  $('sug-body').innerHTML=items.map(s=>{const added=ex.has(s.t);return '<div class="sug-item'+(added?' added':'')+'"><div class="sug-ico ico-'+s.c+'">'+CICO[s.c]+'</div><div class="sug-info"><div class="sug-t">'+s.t+'</div><div class="sug-c">'+s.c+'</div></div><button class="sug-btn" onclick="addSug(\''+s.t.replace(/'/g,"\\'")+'\',\''+s.c+'\')"'+(added?' disabled':'')+'>'+( added?'✓ 추가됨':'+ 추가')+'</button></div>';}).join('');
+}
+function setSugF(f){sugF=f;renderSug()}
+function addSug(ttl,cat){
+  ST.tasks.push({id:Date.now(),ttl,cat,due:'',note:'',pri:'m',done:false,checks:{}});
+  save();renderSug();renderTasks();renderProg();
+  showToast('"'+ttl+'" 추가됐어요!');
+}
+
+function openOv(id){$(id).classList.add('open')}
+function closeOv(id){$(id).classList.remove('open')}
+function ovClose(e,id){if(e.target.classList.contains('ov'))closeOv(id)}
+
+function confetti(){
+  const cols=['#6366f1','#ec4899','#f59e0b','#10b981','#3b82f6','#ef4444','#8b5cf6'];
+  for(let i=0;i<60;i++){
+    const el=document.createElement('div');el.className='cf';
+    const sz=7+Math.random()*11;
+    el.style.cssText='left:'+Math.random()*100+'vw;background:'+cols[i%cols.length]+';width:'+sz+'px;height:'+sz+'px;animation-duration:'+(1.4+Math.random()*1.3)+'s;animation-delay:'+Math.random()*.7+'s;border-radius:'+(Math.random()>.5?'50%':'4px');
+    document.body.appendChild(el);setTimeout(()=>el.remove(),3300);
+  }
+}
+let tT=null;
+function showToast(msg){
+  const el=$('toast');el.textContent=msg;el.classList.add('up');
+  if(tT)clearTimeout(tT);tT=setTimeout(()=>el.classList.remove('up'),2500);
+}
+
+/* ===== DEFAULT TASKS ===== */
+function defaultTasks(){
+  return [
+    {id:1,ttl:'지희와의 관계 회복 - 문제 해결하기',cat:'가족',due:'2026-04-02',note:'감정적 대화로 서로 이해하기, 부드럽게 접근',pri:'h',done:false,checks:{}},
+    {id:2,ttl:'결혼식 순서 인지하고 목사님 만나뵙기',cat:'예식',due:'2026-04-03',note:'일정 조율 먼저 연락 / 문제 해결안 함께 검토',pri:'h',done:false,checks:{}},
+    {id:3,ttl:'양가부모님 만남 - 한복 일정 픽스하기',cat:'가족',due:'2026-04-04',note:'양가 일정 먼저 확인 후 한복집 예약',pri:'m',done:false,checks:{}},
+    {id:4,ttl:'모바일 청첩장 만들기',cat:'초대장',due:'2026-04-05',note:'사진 선정, 문구 작성, 플랫폼 선택',pri:'h',done:false,checks:{}},
+    {id:5,ttl:'청모 개인 만남 일정 조율',cat:'가족',due:'2026-04-06',note:'4월 말까지 / 최대한 평일 활용',pri:'m',done:false,checks:{}},
+    {id:6,ttl:'성진 큰아빠·이모 방문날짜 조율하기',cat:'가족',due:'2026-04-07',note:'4월~5월 중 / 휴가 사용 여부 확인 필요 ㅠ',pri:'h',done:false,checks:{}},
+    {id:7,ttl:'식전영상 만들기',cat:'촬영',due:'2026-04-08',note:'기존 프로포즈영상 활용? or 새로 제작?',pri:'m',done:false,checks:{}},
+    {id:8,ttl:'신행 숙소 픽스 하기',cat:'신혼여행',due:'2026-04-09',note:'예약 가능 여부 재확인',pri:'h',done:false,checks:{}},
+    {id:9,ttl:'신행 비행기 예약하기',cat:'신혼여행',due:'2026-04-09',note:'날짜·항공사 비교 후 최종 예약',pri:'h',done:false,checks:{}}
+  ];
+}
+
+/* ===== AI TIPS DB ===== */
+const DB={
+  '예식':{cost:'예식장 평균 300~800만원',timeline:'최소 6개월~1년 전 예약',warn:'인기 날짜는 1년 전에 마감',
+    tips:[
+      {i:'🏛',t:'웨딩홀·레스토랑·야외·호텔 등 예식장 타입을 먼저 정하고 하객 수·예산에 맞게 투어 후 계약하세요.'},
+      {i:'👨‍⚖️',t:'주례자는 최소 3~4개월 전 섭외. 사전 상담에서 두 분의 이야기를 충분히 나누세요.'},
+      {i:'📋',t:'식순(입장→서약→반지교환→성혼선언→축가→폐백)을 직접 작성해 MC와 사전 공유하세요.'},
+      {i:'🎵',t:'입장음악, 서약 BGM, 퇴장음악은 파일로 준비해 식장 음향팀에 1개월 전 전달하세요.'},
+      {i:'💡',t:'리허설은 전날 진행 권장. 마이크 볼륨, 동선, 조명, 영상 타이밍을 직접 체크하세요.'},
+      {i:'📸',t:'외부 촬영팀 동반 촬영 가능 여부, 반입 조건을 계약 전에 반드시 확인하세요.'}
+    ],
+    cl:['예식장 투어 3곳 이상 비교','계약서 검토 후 날짜 확정','주례자 섭외 완료','식순(진행 순서) 작성','MC 섭외','입장·퇴장·BGM 음악 선정','식순지 인쇄 주문','리허설 일정 확정','플로리스트 계약','폐백 준비']},
+  '의상':{cost:'드레스 50~300만, 예복 30~150만',timeline:'드레스 6개월 전 / 수선 식 2주 전',warn:'인기 드레스숍 6개월~1년 전 마감',
+    tips:[
+      {i:'👗',t:'A라인·볼가운·머메이드 등 실루엣을 먼저 정하고 5~7곳 투어 후 선택하세요.'},
+      {i:'🧵',t:'수선은 보통 2~3회. 마지막 수선은 식 2주 전 완료 권장. 속옷·구두를 신고 피팅하세요.'},
+      {i:'👘',t:'한복은 기성품 1~2개월, 맞춤 3개월 소요. 양가 색상 조율이 사진 퀄리티에 영향을 줍니다.'},
+      {i:'💄',t:'본식 메이크업 리허설은 1~2개월 전 필수. 드레스·속옷·구두 착용 후 전체 핏 확인하세요.'},
+      {i:'🤵',t:'신랑 예복도 3개월 전 맞춤 또는 대여 예약. 구두·넥타이·커프스링크도 함께 준비.'},
+      {i:'👒',t:'부모님 의상(한복/양장) 협의도 잊지 마세요. 양가 색상 통일감이 중요해요.'}
+    ],
+    cl:['드레스숍 5곳 이상 투어','드레스 계약 완료','1차 수선 예약','2차 수선(식 2주 전)','속옷·구두 준비','신랑 예복 완료','한복 양가 색상 조율','본식 메이크업 리허설','부모님 의상 협의','악세서리 준비']},
+  '초대장':{cost:'모바일 1~5만, 종이 20~50만',timeline:'식 1~2개월 전 발송',warn:'하객 명단 수집이 가장 오래 걸림',
+    tips:[
+      {i:'📱',t:'카카오톡·네이버·청첩장 전문앱을 비교하세요. 동영상·지도·계좌 연동 기능이 편리합니다.'},
+      {i:'📮',t:'종이 청첩장은 디자인→교정→인쇄→배포까지 3주 소요. 결혼식 6주 전 발주하세요.'},
+      {i:'📋',t:'하객 명단은 신랑/신부 구분해 연락처·주소를 엑셀 파일로 정리하면 편해요.'},
+      {i:'✏️',t:'청첩장 문구는 전통 혼서지 형식이나 감성적인 에세이 형식 모두 인기 있어요.'},
+      {i:'💌',t:'VIP(부모님 지인, 직장 상사)에게는 직접 전달이나 전화 연락이 예의바릅니다.'},
+      {i:'🗺',t:'교통편 안내(셔틀, 주차, 대중교통)를 상세히 넣으면 하객 만족도가 높아집니다.'}
+    ],
+    cl:['하객 명단 양가 합산 완성','연락처·주소 수집','모바일 청첩장 플랫폼 선택','청첩장 문구 작성','사진 선정 완료','모바일 청첩장 제작','종이 청첩장 디자인 확정','인쇄 주문','발송 완료(식 1개월 전)','VIP 직접 연락']},
+  '가족':{cost:'상견례 10~30만, 예물 100~500만',timeline:'상견례 6개월 전 / 친척 일정 2개월 전',warn:'양가 소통이 핵심, 미루면 일정 충돌',
+    tips:[
+      {i:'🏠',t:'상견례는 양가 중간 지점 한식당 프라이빗 룸 추천. 음식 알러지·취향을 미리 전달하세요.'},
+      {i:'👘',t:'양가 부모님 한복 촬영 일정은 부모님 일정을 최우선 고려하여 잡으세요.'},
+      {i:'📞',t:'친척 방문 일정은 여러 가정이 얽혀 있어 최소 2개월 전 연락해 조율하세요.'},
+      {i:'💰',t:'예물·예단은 양가 합의가 중요. 예산 범위를 미리 정해 불필요한 갈등을 막으세요.'},
+      {i:'🎁',t:'함 받는 날(납폐)은 결혼 전날 진행. 함 내용과 함진아비 역할을 미리 정하세요.'},
+      {i:'🍱',t:'이바지음식은 사전에 양가 의사 확인 후 준비 여부를 결정하세요.'}
+    ],
+    cl:['상견례 날짜·장소 확정','상견례 진행 완료','한복 색상 양가 조율','친척 방문 일정 확정','예물 선택 및 교환','예단 준비','함 받는 날 준비','이바지음식 협의','양가 부모님 한복 촬영 일정','폐백 준비 완료']},
+  '신혼여행':{cost:'국내 30~100만, 해외 100~500만+',timeline:'인기지 6개월 전 / 비수기 3개월 전',warn:'여권 유효기간 6개월 필수 확인',
+    tips:[
+      {i:'✈️',t:'몰디브·발리·유럽·제주 중 예산·체력을 고려해 결정. 장거리는 허니문 전문 여행사 패키지가 편해요.'},
+      {i:'🏨',t:'허니문 패키지는 업그레이드·꽃장식·커플 스파 등 혜택 있어요. 항공+숙소 분리도 비교하세요.'},
+      {i:'🛂',t:'여권 유효기간 6개월 이상 확인 필수. 갱신은 정부24 또는 여권과 방문, 약 2~4주 소요.'},
+      {i:'💳',t:'허니문 신용카드를 미리 준비하고, 국제 현금카드·여행자 보험도 꼭 가입하세요.'},
+      {i:'📱',t:'현지 eSIM 또는 포켓와이파이를 미리 예약하면 저렴해요. 긴급 연락처도 저장해두세요.'},
+      {i:'🌡',t:'목적지 날씨, 복장 코드, 그랩·우버 앱 설치, 현지 화폐 준비까지 체크리스트 작성하세요.'}
+    ],
+    cl:['여행지 최종 결정','항공권 예약','숙소 예약','여권 유효기간 확인(6개월 이상)','여행자 보험 가입','환전·현금카드 준비','현지 심카드/eSIM 예약','앱 설치(그랩·우버 등)','여행 짐 리스트 작성','비상 연락처 정리']},
+  '촬영':{cost:'스드메 평균 200~600만',timeline:'스튜디오 최소 6개월 전 예약',warn:'인기 작가는 1년 전 마감 경우 있음',
+    tips:[
+      {i:'📸',t:'스드메 패키지 vs 개별 예약을 비교하세요. 패키지가 편하지만 개별이 선택 폭이 넓어요.'},
+      {i:'🎬',t:'본식 영상 스타일(영화감성·필름·드론)을 샘플로 비교하고 원하는 분위기를 구체적으로 전달하세요.'},
+      {i:'🌅',t:'야외 스냅 촬영은 날씨 변수를 고려해 우천 대비 날짜를 계약서에 명시해두세요.'},
+      {i:'💡',t:'D-100, D-50 데이트 스냅이나 프리웨딩 촬영으로 자연스러운 두 분의 모습을 남겨보세요.'},
+      {i:'🎵',t:'식전영상(성장·프로포즈 영상)은 편집에 2~3주 소요. 한 달 전에 의뢰하세요.'},
+      {i:'🖼',t:'앨범 제작은 원본 수령 후 2~3개월 소요. 레이아웃·커버 소재를 미리 결정하세요.'}
+    ],
+    cl:['스드메 계약 결정','웨딩 스튜디오 계약','드레스·헤어 스타일 확정','본식 스냅 작가 계약','본식 영상팀 계약','야외 촬영 날짜·우천대비 확정','프리웨딩 촬영 완료','식전영상 제작 의뢰','앨범 디자인 선정','원본 파일 수령 확인']},
+  '피로연':{cost:'뷔페 1인 4~8만, 케이터링 다양',timeline:'메뉴 1~2개월 전 확정',warn:'하객 수 확정 후 추가는 추가비용 발생',
+    tips:[
+      {i:'🍽',t:'식장 내 피로연과 외부 케이터링을 비교하세요. 외부 반입 시 오픈 차지 여부를 확인하세요.'},
+      {i:'🎂',t:'웨딩 케이크는 더미케이크와 실제 케이크 구분 주문. 1~2개월 전 예약 필요해요.'},
+      {i:'🥂',t:'주류·음료 외부 반입 가능 여부를 식장 측에 확인하세요. 소주·맥주·와인을 하객 취향에 맞게 구성하세요.'},
+      {i:'👶',t:'어린이 하객이 있다면 키즈 메뉴와 이동식 어린이 의자를 미리 요청하세요.'},
+      {i:'💝',t:'답례품은 하객 수 +10~15% 여유분 준비. 식장 반입 날짜·배치 위치를 미리 협의하세요.'},
+      {i:'🪑',t:'좌석 배치도는 하객 관계(신랑/신부 측, VIP, 친구 그룹)를 고려해 작성하세요.'}
+    ],
+    cl:['피로연 방식 결정(뷔페/코스/케이터링)','하객 수 확정 및 식장 협의','웨딩 케이크 주문','음료·주류 외부 반입 확인','어린이 메뉴·좌석 요청','답례품 선정 및 주문','답례품 식장 전달','좌석 배치도 작성','테이블 이름표 제작','최종 메뉴·인원 확인']},
+  '행정':{cost:'대부분 무료 또는 소액',timeline:'혼인신고는 결혼 후 3개월 이내 권장',warn:'명의 변경 항목이 많아 체계적 관리 필요',
+    tips:[
+      {i:'📄',t:'혼인신고는 결혼식 전후 언제든 가능. 두 분 모두 필요 서류를 챙겨 주민센터 방문 또는 정부24 온라인 신청.'},
+      {i:'🏠',t:'신혼집 전입신고는 이사 후 14일 이내 의무. 전세라면 확정일자도 같은 날 받아 보증금을 보호하세요.'},
+      {i:'💳',t:'혼인신고 후 운전면허증(경찰서)·통장·카드(각 은행)·건강보험(직장 인사팀) 순서로 명의 변경.'},
+      {i:'💰',t:'신혼부부 전세자금대출(최저 연 1%대), 청약 신혼부부 특별공급 혜택을 미리 알아보세요.'},
+      {i:'📋',t:'결혼 당일 필요 서류(신분증, 예식장 주소, 비상 연락망)를 미리 파일함에 정리하세요.'},
+      {i:'🏦',t:'공동 생활비 통장 개설, 가계부 앱 선택, 월 예산 계획을 결혼 전에 함께 의논해두세요.'}
+    ],
+    cl:['혼인신고 서류 준비','주민센터 혼인신고','신혼집 전입신고','전세 확정일자 수령','운전면허증 변경','건강보험 피부양자 등록','통장·카드 명의 변경','신혼부부 혜택 조회','공동 생활비 통장 개설','가계부 앱 선택']}
+};
+
+/* ===== SUGGESTION LIST ===== */
+const SUGS=[
+  {t:'예식장 투어 일정 잡기',c:'예식'},{t:'예식장 계약 및 날짜 확정',c:'예식'},
+  {t:'주례자/목사님 섭외',c:'예식'},{t:'결혼식 식순 작성',c:'예식'},
+  {t:'사회자(MC) 섭외',c:'예식'},{t:'축가 부탁드리기',c:'예식'},
+  {t:'입장·BGM 음악 선정',c:'예식'},{t:'플로리스트 업체 계약',c:'예식'},
+  {t:'리허설 일정 확정',c:'예식'},{t:'폐백 준비',c:'예식'},
+  {t:'웨딩드레스숍 투어 시작',c:'의상'},{t:'드레스 최종 계약',c:'의상'},
+  {t:'신랑 예복 맞춤/대여 예약',c:'의상'},{t:'한복 양가 색상 조율',c:'의상'},
+  {t:'본식 메이크업 리허설',c:'의상'},{t:'드레스 수선 1차',c:'의상'},
+  {t:'드레스 수선 최종(식 2주 전)',c:'의상'},{t:'부모님 의상 협의',c:'의상'},
+  {t:'신부 악세서리 준비',c:'의상'},{t:'신랑 구두·넥타이 준비',c:'의상'},
+  {t:'하객 명단 양가 합산 작성',c:'초대장'},{t:'모바일 청첩장 플랫폼 선택',c:'초대장'},
+  {t:'청첩장 문구 작성',c:'초대장'},{t:'종이 청첩장 디자인 확정',c:'초대장'},
+  {t:'청첩장 인쇄 주문',c:'초대장'},{t:'청첩장 발송 완료',c:'초대장'},
+  {t:'VIP 직접 전달 완료',c:'초대장'},{t:'교통 안내 문자 발송',c:'초대장'},
+  {t:'상견례 날짜·장소 확정',c:'가족'},{t:'상견례 진행',c:'가족'},
+  {t:'양가 부모님 한복 일정 픽스',c:'가족'},{t:'친척 방문 날짜 조율',c:'가족'},
+  {t:'함 받는 날 준비',c:'가족'},{t:'예물·예단 협의',c:'가족'},
+  {t:'이바지음식 준비 확인',c:'가족'},{t:'결혼 준비 현황 양가 공유',c:'가족'},
+  {t:'신혼여행지 최종 결정',c:'신혼여행'},{t:'항공권 예약',c:'신혼여행'},
+  {t:'허니문 숙소 예약',c:'신혼여행'},{t:'여권 유효기간 확인',c:'신혼여행'},
+  {t:'여행자 보험 가입',c:'신혼여행'},{t:'환전 및 현금카드 준비',c:'신혼여행'},
+  {t:'현지 eSIM/심카드 예약',c:'신혼여행'},{t:'여행 짐 체크리스트 작성',c:'신혼여행'},
+  {t:'그랩·우버 앱 설치',c:'신혼여행'},{t:'허니문 패키지 특전 확인',c:'신혼여행'},
+  {t:'스드메 패키지 비교 및 계약',c:'촬영'},{t:'본식 스냅 작가 계약',c:'촬영'},
+  {t:'본식 영상 촬영팀 계약',c:'촬영'},{t:'야외 촬영 날짜 확정',c:'촬영'},
+  {t:'프리웨딩(데이트 스냅) 촬영',c:'촬영'},{t:'식전영상 제작 의뢰',c:'촬영'},
+  {t:'앨범 디자인 선정',c:'촬영'},{t:'촬영 원본 파일 수령',c:'촬영'},
+  {t:'피로연 메뉴 방식 결정',c:'피로연'},{t:'웨딩 케이크 주문',c:'피로연'},
+  {t:'답례품 선정 및 주문',c:'피로연'},{t:'하객 좌석 배치도 작성',c:'피로연'},
+  {t:'어린이 메뉴·좌석 요청',c:'피로연'},{t:'음료·주류 준비 확인',c:'피로연'},
+  {t:'테이블 이름표 제작',c:'피로연'},{t:'답례품 식장 전달',c:'피로연'},
+  {t:'혼인신고 서류 준비',c:'행정'},{t:'주민센터 혼인신고',c:'행정'},
+  {t:'신혼집 전입신고',c:'행정'},{t:'전세 확정일자 수령',c:'행정'},
+  {t:'운전면허증 정보 변경',c:'행정'},{t:'건강보험 피부양자 등록',c:'행정'},
+  {t:'통장·카드 명의 변경',c:'행정'},{t:'신혼부부 대출·혜택 조회',c:'행정'},
+  {t:'공동 생활비 통장 개설',c:'행정'},{t:'연말정산 세금 혜택 확인',c:'행정'}
+];
+
+/* ===== INIT ===== */
+load();
+if(ST.ok){$('pg-setup').style.display='none';boot();}
+else{$('pg-setup').style.display='flex';$('pg-app').style.display='none';}
+</script>
+</body>
+</html>
